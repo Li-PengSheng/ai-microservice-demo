@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package iris;
+
+option go_package = "./pb";
+
+// 定义请求：鸢尾花的4个特征
+message PredictRequest {
+  float sepal_length = 1;
+  float sepal_width = 2;
+  float petal_length = 3;
+  float petal_width = 4;
+}
+
+// 定义响应：预测的类别（int 或 string）
+message PredictResponse {
+  int32 class_id = 1;
+  string class_name = 2;
+}
+
+// 定义服务接口
+service IrisPredictor {
+  rpc Predict(PredictRequest) returns (PredictResponse);
+}
