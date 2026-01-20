@@ -1,0 +1,23 @@
+version: v2
+managed:
+  enabled: true
+  override:
+    - file_option: go_package_prefix
+      value: ai-microservice-demo/service_go/gen/proto
+plugins:
+  # --- Go 生成配置 ---
+  - remote: buf.build/protocolbuffers/go
+    out: service_go/gen
+    opt:
+      - paths=source_relative
+  - remote: buf.build/grpc/go
+    out: service_go/gen
+    opt:
+      - paths=source_relative
+  # --- Python 生成配置 ---
+  - remote: buf.build/protocolbuffers/python
+    out: service_python/gen
+  - remote: buf.build/grpc/python
+    out: service_python/gen
+  - remote: buf.build/protocolbuffers/pyi
+    out: service_python/gen
