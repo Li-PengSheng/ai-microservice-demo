@@ -17,6 +17,7 @@ import (
 
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
+	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.17.0"
@@ -74,6 +75,8 @@ func initTracer() (*sdktrace.TracerProvider, error) {
 	)
 
 	otel.SetTracerProvider(tp)
+	// 关键：设置全局传播器，这样 otelgrpc 才能把 ID 传出去
+	otel.SetTextMapPropagator(propagation.TraceContext{})
 	return tp, nil
 }
 

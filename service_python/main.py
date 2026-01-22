@@ -12,18 +12,27 @@ import iris_pb2_grpc
 from opentelemetry import trace
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from opentelemetry.instrumentation.grpc import GrpcInstrumentorServer
+from opentelemetry.propagate import set_global_textmap  # 修复导入
+from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.trace.propagation.tracecontext import (
+    TraceContextTextMapPropagator,  # 修复类名
+)
 from sklearn.datasets import load_iris
 from sklearn.ensemble import RandomForestClassifier
 
 # 1. 初始化追踪器，发送到 Jaeger
-# 配置追踪数据发送到 Jaeger:4317
-resource = trace.Resource.create({"service.name": "python-ai"})
+resource = Resource.create({"service.name": "python-ai"})
 provider = TracerProvider(resource=resource)
-processor = BatchSpanProcessor(OTLPSpanExporter(endpoint="jaeger:4317", insecure=True))
+processor = BatchSpanProcessor(
+    OTLPSpanExporter(endpoint="jaeger:4317", insecure=True)
+)
 provider.add_span_processor(processor)
 trace.set_tracer_provider(provider)
+
+# 设置全局传播器，用于跨服务追踪上下文传递
+set_global_textmap(TraceContextTextMapPropagator())
 
 # 2. 自动拦截所有 gRPC 请求
 instrumentor = GrpcInstrumentorServer()
@@ -48,16 +57,6 @@ class IrisPredictorServicer(iris_pb2_grpc.IrisPredictorServicer):
         pred_idx = clf.predict(features)[0]
         class_name = iris.target_names[pred_idx]
 
-        # class_id = 0
-        # class_name = "Setosa"
-
-        # if request.petal_length > 5.0:
-        #     class_id = 2
-        #     class_name = "Virginica"
-        # elif request.petal_length > 3.0:
-        #     class_id = 1
-        #     class_name = "Versicolor"
-
         return iris_pb2.PredictResponse(class_id=pred_idx, class_name=class_name)
 
 def serve():
@@ -66,7 +65,14 @@ def serve():
     server.add_insecure_port('[::]:50051')
     print("Python AI Service (gRPC) is running on port 50051...")
     server.start()
-    server.wait_for_termination()
+    try:
+        server.wait_for_termination()
+    except KeyboardInterrupt:
+        print("\nShutting down gracefully...")
+        server.stop(grace=5)
+        # 关闭追踪器
+        provider.shutdown()
+        print("Server stopped.")
 
 if __name__ == '__main__':
     serve()
