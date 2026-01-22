@@ -9,8 +9,25 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "gen"))
 import grpc
 import iris_pb2
 import iris_pb2_grpc
+from opentelemetry import trace
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.instrumentation.grpc import GrpcInstrumentorServer
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from sklearn.datasets import load_iris
 from sklearn.ensemble import RandomForestClassifier
+
+# 1. 初始化追踪器，发送到 Jaeger
+# 配置追踪数据发送到 Jaeger:4317
+resource = trace.Resource.create({"service.name": "python-ai"})
+provider = TracerProvider(resource=resource)
+processor = BatchSpanProcessor(OTLPSpanExporter(endpoint="jaeger:4317", insecure=True))
+provider.add_span_processor(processor)
+trace.set_tracer_provider(provider)
+
+# 2. 自动拦截所有 gRPC 请求
+instrumentor = GrpcInstrumentorServer()
+instrumentor.instrument()
 
 # 1. 模拟加载/训练模型 (实际项目中你会 load 一个 .pkl 文件)
 iris = load_iris()

@@ -7,13 +7,24 @@ import (
 	"os"
 	"time"
 
-	pb "my-go-gateway/gen"
-
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+
+	// --- 链路追踪相关核心依赖 ---
+
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
+	"go.opentelemetry.io/otel/sdk/resource"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.17.0"
+
+	// 拦截器与插件
+	pb "my-go-gateway/gen" // 确保路径与你的 go.mod 一致
+
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 )
 
 var (
@@ -42,10 +53,43 @@ func init() {
 	prometheus.MustRegister(httpDuration)
 }
 
-func main() {
-	conn, err := grpc.Dial(os.Getenv("AI_SERVICE_ADDR"), grpc.WithTransportCredentials(insecure.NewCredentials()))
+// 初始化 OpenTelemetry 追踪器
+func initTracer() (*sdktrace.TracerProvider, error) {
+	ctx := context.Background()
+	// 连接到 Docker Compose 中的 Jaeger 服务
+	exporter, err := otlptracegrpc.New(ctx,
+		otlptracegrpc.WithEndpoint("jaeger:4317"),
+		otlptracegrpc.WithInsecure(),
+	)
 	if err != nil {
-		slog.Error("无法连接 AI 服务: %v", err)
+		return nil, err
+	}
+
+	tp := sdktrace.NewTracerProvider(
+		sdktrace.WithBatcher(exporter),
+		sdktrace.WithResource(resource.NewWithAttributes(
+			semconv.SchemaURL,
+			semconv.ServiceNameKey.String("go-gateway"),
+		)),
+	)
+
+	otel.SetTracerProvider(tp)
+	return tp, nil
+}
+
+func main() {
+	// 1. 初始化链路追踪
+	tp, err := initTracer()
+	if err != nil {
+		slog.Error("failed to initialize tracer", "error", err)
+		os.Exit(1)
+	}
+	defer func() { _ = tp.Shutdown(context.Background()) }()
+
+	conn, err := grpc.Dial(os.Getenv("AI_SERVICE_ADDR"), grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithStatsHandler(otelgrpc.NewClientHandler()))
+	if err != nil {
+		slog.Error("failed to connect to AI service", "error", err)
+		os.Exit(1)
 	}
 	defer conn.Close()
 
@@ -86,6 +130,7 @@ func main() {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "AI 服务调用失败: " + err.Error()})
 			return
 		}
+		httpRequestsTotal.WithLabelValues("/predict", "200").Inc()
 
 		// 4. 返回最终结果
 		c.JSON(http.StatusOK, gin.H{
@@ -94,9 +139,10 @@ func main() {
 			"source": "Go Gateway -> Python AI",
 		})
 
-		httpRequestsTotal.WithLabelValues("/predict", "200").Inc()
 	})
 
 	slog.Info("Go Gateway running on http://localhost:8080")
 	r.Run(":8080")
 }
+
+//go get go.opentelemetry.io/otel go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc
