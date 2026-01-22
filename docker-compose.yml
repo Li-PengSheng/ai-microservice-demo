@@ -18,7 +18,25 @@ services:
       - AI_SERVICE_ADDR=python-ai:50051 # 关键：通过服务名通信
     networks:
       - ai-network
+  # 新增：Prometheus 时序数据库
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - ai-network
+    ports:
+      - "9090:9090"
 
+  # 新增：Grafana 可视化面板
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    networks:
+      - ai-network
+    depends_on:
+      - prometheus
 networks:
   ai-network:
     driver: bridge

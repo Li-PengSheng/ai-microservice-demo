@@ -10,9 +10,37 @@ import (
 	pb "my-go-gateway/gen"
 
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
+
+var (
+	// 记录请求总数 (用于计算 QPS)
+	httpRequestsTotal = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "http_requests_total",
+			Help: "Total number of HTTP requests.",
+		},
+		[]string{"path", "status"},
+	)
+	// 记录请求耗时 (用于计算 P99 延迟)
+	httpDuration = prometheus.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Name:    "http_request_duration_seconds",
+			Help:    "Histogram of response latency for HTTP requests.",
+			Buckets: []float64{.005, .01, .025, .05, .1, .25, .5, 1, 2.5, 5, 10},
+		},
+		[]string{"path"},
+	)
+)
+
+func init() {
+	// 注册指标
+	prometheus.MustRegister(httpRequestsTotal)
+	prometheus.MustRegister(httpDuration)
+}
 
 func main() {
 	conn, err := grpc.Dial(os.Getenv("AI_SERVICE_ADDR"), grpc.WithTransportCredentials(insecure.NewCredentials()))
@@ -24,7 +52,14 @@ func main() {
 	client := pb.NewIrisPredictorClient(conn)
 
 	r := gin.Default()
+
+	r.GET("/metrics", gin.WrapH(promhttp.Handler()))
+
 	r.POST("/predict", func(c *gin.Context) {
+
+		timer := prometheus.NewTimer(httpDuration.WithLabelValues("/predict"))
+		defer timer.ObserveDuration()
+
 		var reqJson struct {
 			SepalLength float32 `json:"sepal_length"`
 			SepalWidth  float32 `json:"sepal_width"`
@@ -58,6 +93,8 @@ func main() {
 			"id":     resp.ClassId,
 			"source": "Go Gateway -> Python AI",
 		})
+
+		httpRequestsTotal.WithLabelValues("/predict", "200").Inc()
 	})
 
 	slog.Info("Go Gateway running on http://localhost:8080")
