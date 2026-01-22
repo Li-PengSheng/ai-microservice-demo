@@ -558,6 +558,7 @@ dependencies = [
     { name = "opentelemetry-instrumentation-grpc" },
     { name = "opentelemetry-sdk" },
     { name = "protobuf" },
+    { name = "requests" },
     { name = "scikit-learn" },
 ]
 
@@ -570,6 +571,7 @@ requires-dist = [
     { name = "opentelemetry-instrumentation-grpc", specifier = ">=0.60b1" },
     { name = "opentelemetry-sdk", specifier = ">=1.39.1" },
     { name = "protobuf", specifier = ">=6.33.4" },
+    { name = "requests", specifier = ">=2.32.5" },
     { name = "scikit-learn", specifier = ">=1.8.0" },
 ]
 

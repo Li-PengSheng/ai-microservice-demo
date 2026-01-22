@@ -12,6 +12,7 @@ dependencies = [
     "opentelemetry-instrumentation-grpc>=0.60b1",
     "opentelemetry-sdk>=1.39.1",
     "protobuf>=6.33.4",
+    "requests>=2.32.5",
     "scikit-learn>=1.8.0",
 ]
 [tool.pyright]
