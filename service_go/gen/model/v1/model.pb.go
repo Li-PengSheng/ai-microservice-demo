@@ -129,8 +129,8 @@ const file_model_v1_model_proto_rawDesc = "" +
 	"\x14ModelPredictResponse\x12\x1a\n" +
 	"\bresponse\x18\x01 \x01(\tR\bresponse\x12\x1d\n" +
 	"\n" +
-	"model_name\x18\x02 \x01(\tR\tmodelName2_\n" +
-	"\x0eModelPredictor\x12M\n" +
+	"model_name\x18\x02 \x01(\tR\tmodelName2f\n" +
+	"\x15ModelPredictorService\x12M\n" +
 	"\fModelPredict\x12\x1d.model.v1.ModelPredictRequest\x1a\x1e.model.v1.ModelPredictResponseB\x97\x01\n" +
 	"\fcom.model.v1B\n" +
 	"ModelProtoP\x01Z:ai-microservice-demo/service_go/gen/proto/model/v1;modelv1\xa2\x02\x03MXX\xaa\x02\bModel.V1\xca\x02\bModel\\V1\xe2\x02\x14Model\\V1\\GPBMetadata\xea\x02\tModel::V1b\x06proto3"
@@ -153,8 +153,8 @@ var file_model_v1_model_proto_goTypes = []any{
 	(*ModelPredictResponse)(nil), // 1: model.v1.ModelPredictResponse
 }
 var file_model_v1_model_proto_depIdxs = []int32{
-	0, // 0: model.v1.ModelPredictor.ModelPredict:input_type -> model.v1.ModelPredictRequest
-	1, // 1: model.v1.ModelPredictor.ModelPredict:output_type -> model.v1.ModelPredictResponse
+	0, // 0: model.v1.ModelPredictorService.ModelPredict:input_type -> model.v1.ModelPredictRequest
+	1, // 1: model.v1.ModelPredictorService.ModelPredict:output_type -> model.v1.ModelPredictResponse
 	1, // [1:2] is the sub-list for method output_type
 	0, // [0:1] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name

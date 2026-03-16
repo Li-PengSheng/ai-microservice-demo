@@ -14,13 +14,7 @@ class IrisPredictRequest(_message.Message):
     sepal_width: float
     petal_length: float
     petal_width: float
-    def __init__(
-        self,
-        sepal_length: _Optional[float] = ...,
-        sepal_width: _Optional[float] = ...,
-        petal_length: _Optional[float] = ...,
-        petal_width: _Optional[float] = ...,
-    ) -> None: ...
+    def __init__(self, sepal_length: _Optional[float] = ..., sepal_width: _Optional[float] = ..., petal_length: _Optional[float] = ..., petal_width: _Optional[float] = ...) -> None: ...
 
 class IrisPredictResponse(_message.Message):
     __slots__ = ("class_id", "class_name")
@@ -28,6 +22,4 @@ class IrisPredictResponse(_message.Message):
     CLASS_NAME_FIELD_NUMBER: _ClassVar[int]
     class_id: int
     class_name: str
-    def __init__(
-        self, class_id: _Optional[int] = ..., class_name: _Optional[str] = ...
-    ) -> None: ...
+    def __init__(self, class_id: _Optional[int] = ..., class_name: _Optional[str] = ...) -> None: ...

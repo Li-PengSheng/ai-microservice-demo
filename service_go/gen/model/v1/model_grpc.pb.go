@@ -19,101 +19,101 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ModelPredictor_ModelPredict_FullMethodName = "/model.v1.ModelPredictor/ModelPredict"
+	ModelPredictorService_ModelPredict_FullMethodName = "/model.v1.ModelPredictorService/ModelPredict"
 )
 
-// ModelPredictorClient is the client API for ModelPredictor service.
+// ModelPredictorServiceClient is the client API for ModelPredictorService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type ModelPredictorClient interface {
+type ModelPredictorServiceClient interface {
 	ModelPredict(ctx context.Context, in *ModelPredictRequest, opts ...grpc.CallOption) (*ModelPredictResponse, error)
 }
 
-type modelPredictorClient struct {
+type modelPredictorServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewModelPredictorClient(cc grpc.ClientConnInterface) ModelPredictorClient {
-	return &modelPredictorClient{cc}
+func NewModelPredictorServiceClient(cc grpc.ClientConnInterface) ModelPredictorServiceClient {
+	return &modelPredictorServiceClient{cc}
 }
 
-func (c *modelPredictorClient) ModelPredict(ctx context.Context, in *ModelPredictRequest, opts ...grpc.CallOption) (*ModelPredictResponse, error) {
+func (c *modelPredictorServiceClient) ModelPredict(ctx context.Context, in *ModelPredictRequest, opts ...grpc.CallOption) (*ModelPredictResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ModelPredictResponse)
-	err := c.cc.Invoke(ctx, ModelPredictor_ModelPredict_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, ModelPredictorService_ModelPredict_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// ModelPredictorServer is the server API for ModelPredictor service.
-// All implementations must embed UnimplementedModelPredictorServer
+// ModelPredictorServiceServer is the server API for ModelPredictorService service.
+// All implementations must embed UnimplementedModelPredictorServiceServer
 // for forward compatibility.
-type ModelPredictorServer interface {
+type ModelPredictorServiceServer interface {
 	ModelPredict(context.Context, *ModelPredictRequest) (*ModelPredictResponse, error)
-	mustEmbedUnimplementedModelPredictorServer()
+	mustEmbedUnimplementedModelPredictorServiceServer()
 }
 
-// UnimplementedModelPredictorServer must be embedded to have
+// UnimplementedModelPredictorServiceServer must be embedded to have
 // forward compatible implementations.
 //
 // NOTE: this should be embedded by value instead of pointer to avoid a nil
 // pointer dereference when methods are called.
-type UnimplementedModelPredictorServer struct{}
+type UnimplementedModelPredictorServiceServer struct{}
 
-func (UnimplementedModelPredictorServer) ModelPredict(context.Context, *ModelPredictRequest) (*ModelPredictResponse, error) {
+func (UnimplementedModelPredictorServiceServer) ModelPredict(context.Context, *ModelPredictRequest) (*ModelPredictResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ModelPredict not implemented")
 }
-func (UnimplementedModelPredictorServer) mustEmbedUnimplementedModelPredictorServer() {}
-func (UnimplementedModelPredictorServer) testEmbeddedByValue()                        {}
+func (UnimplementedModelPredictorServiceServer) mustEmbedUnimplementedModelPredictorServiceServer() {}
+func (UnimplementedModelPredictorServiceServer) testEmbeddedByValue()                               {}
 
-// UnsafeModelPredictorServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to ModelPredictorServer will
+// UnsafeModelPredictorServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ModelPredictorServiceServer will
 // result in compilation errors.
-type UnsafeModelPredictorServer interface {
-	mustEmbedUnimplementedModelPredictorServer()
+type UnsafeModelPredictorServiceServer interface {
+	mustEmbedUnimplementedModelPredictorServiceServer()
 }
 
-func RegisterModelPredictorServer(s grpc.ServiceRegistrar, srv ModelPredictorServer) {
-	// If the following call panics, it indicates UnimplementedModelPredictorServer was
+func RegisterModelPredictorServiceServer(s grpc.ServiceRegistrar, srv ModelPredictorServiceServer) {
+	// If the following call panics, it indicates UnimplementedModelPredictorServiceServer was
 	// embedded by pointer and is nil.  This will cause panics if an
 	// unimplemented method is ever invoked, so we test this at initialization
 	// time to prevent it from happening at runtime later due to I/O.
 	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
 		t.testEmbeddedByValue()
 	}
-	s.RegisterService(&ModelPredictor_ServiceDesc, srv)
+	s.RegisterService(&ModelPredictorService_ServiceDesc, srv)
 }
 
-func _ModelPredictor_ModelPredict_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ModelPredictorService_ModelPredict_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ModelPredictRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ModelPredictorServer).ModelPredict(ctx, in)
+		return srv.(ModelPredictorServiceServer).ModelPredict(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ModelPredictor_ModelPredict_FullMethodName,
+		FullMethod: ModelPredictorService_ModelPredict_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ModelPredictorServer).ModelPredict(ctx, req.(*ModelPredictRequest))
+		return srv.(ModelPredictorServiceServer).ModelPredict(ctx, req.(*ModelPredictRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// ModelPredictor_ServiceDesc is the grpc.ServiceDesc for ModelPredictor service.
+// ModelPredictorService_ServiceDesc is the grpc.ServiceDesc for ModelPredictorService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var ModelPredictor_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "model.v1.ModelPredictor",
-	HandlerType: (*ModelPredictorServer)(nil),
+var ModelPredictorService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "model.v1.ModelPredictorService",
+	HandlerType: (*ModelPredictorServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "ModelPredict",
-			Handler:    _ModelPredictor_ModelPredict_Handler,
+			Handler:    _ModelPredictorService_ModelPredict_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

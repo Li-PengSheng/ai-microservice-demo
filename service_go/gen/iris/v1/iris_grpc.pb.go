@@ -19,105 +19,105 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	IrisPredictor_IrisPredict_FullMethodName = "/iris.v1.IrisPredictor/IrisPredict"
+	IrisPredictorService_IrisPredict_FullMethodName = "/iris.v1.IrisPredictorService/IrisPredict"
 )
 
-// IrisPredictorClient is the client API for IrisPredictor service.
+// IrisPredictorServiceClient is the client API for IrisPredictorService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
 // 定义服务接口
-type IrisPredictorClient interface {
+type IrisPredictorServiceClient interface {
 	IrisPredict(ctx context.Context, in *IrisPredictRequest, opts ...grpc.CallOption) (*IrisPredictResponse, error)
 }
 
-type irisPredictorClient struct {
+type irisPredictorServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewIrisPredictorClient(cc grpc.ClientConnInterface) IrisPredictorClient {
-	return &irisPredictorClient{cc}
+func NewIrisPredictorServiceClient(cc grpc.ClientConnInterface) IrisPredictorServiceClient {
+	return &irisPredictorServiceClient{cc}
 }
 
-func (c *irisPredictorClient) IrisPredict(ctx context.Context, in *IrisPredictRequest, opts ...grpc.CallOption) (*IrisPredictResponse, error) {
+func (c *irisPredictorServiceClient) IrisPredict(ctx context.Context, in *IrisPredictRequest, opts ...grpc.CallOption) (*IrisPredictResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(IrisPredictResponse)
-	err := c.cc.Invoke(ctx, IrisPredictor_IrisPredict_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, IrisPredictorService_IrisPredict_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// IrisPredictorServer is the server API for IrisPredictor service.
-// All implementations must embed UnimplementedIrisPredictorServer
+// IrisPredictorServiceServer is the server API for IrisPredictorService service.
+// All implementations must embed UnimplementedIrisPredictorServiceServer
 // for forward compatibility.
 //
 // 定义服务接口
-type IrisPredictorServer interface {
+type IrisPredictorServiceServer interface {
 	IrisPredict(context.Context, *IrisPredictRequest) (*IrisPredictResponse, error)
-	mustEmbedUnimplementedIrisPredictorServer()
+	mustEmbedUnimplementedIrisPredictorServiceServer()
 }
 
-// UnimplementedIrisPredictorServer must be embedded to have
+// UnimplementedIrisPredictorServiceServer must be embedded to have
 // forward compatible implementations.
 //
 // NOTE: this should be embedded by value instead of pointer to avoid a nil
 // pointer dereference when methods are called.
-type UnimplementedIrisPredictorServer struct{}
+type UnimplementedIrisPredictorServiceServer struct{}
 
-func (UnimplementedIrisPredictorServer) IrisPredict(context.Context, *IrisPredictRequest) (*IrisPredictResponse, error) {
+func (UnimplementedIrisPredictorServiceServer) IrisPredict(context.Context, *IrisPredictRequest) (*IrisPredictResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method IrisPredict not implemented")
 }
-func (UnimplementedIrisPredictorServer) mustEmbedUnimplementedIrisPredictorServer() {}
-func (UnimplementedIrisPredictorServer) testEmbeddedByValue()                       {}
+func (UnimplementedIrisPredictorServiceServer) mustEmbedUnimplementedIrisPredictorServiceServer() {}
+func (UnimplementedIrisPredictorServiceServer) testEmbeddedByValue()                              {}
 
-// UnsafeIrisPredictorServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to IrisPredictorServer will
+// UnsafeIrisPredictorServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to IrisPredictorServiceServer will
 // result in compilation errors.
-type UnsafeIrisPredictorServer interface {
-	mustEmbedUnimplementedIrisPredictorServer()
+type UnsafeIrisPredictorServiceServer interface {
+	mustEmbedUnimplementedIrisPredictorServiceServer()
 }
 
-func RegisterIrisPredictorServer(s grpc.ServiceRegistrar, srv IrisPredictorServer) {
-	// If the following call panics, it indicates UnimplementedIrisPredictorServer was
+func RegisterIrisPredictorServiceServer(s grpc.ServiceRegistrar, srv IrisPredictorServiceServer) {
+	// If the following call panics, it indicates UnimplementedIrisPredictorServiceServer was
 	// embedded by pointer and is nil.  This will cause panics if an
 	// unimplemented method is ever invoked, so we test this at initialization
 	// time to prevent it from happening at runtime later due to I/O.
 	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
 		t.testEmbeddedByValue()
 	}
-	s.RegisterService(&IrisPredictor_ServiceDesc, srv)
+	s.RegisterService(&IrisPredictorService_ServiceDesc, srv)
 }
 
-func _IrisPredictor_IrisPredict_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _IrisPredictorService_IrisPredict_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(IrisPredictRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(IrisPredictorServer).IrisPredict(ctx, in)
+		return srv.(IrisPredictorServiceServer).IrisPredict(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: IrisPredictor_IrisPredict_FullMethodName,
+		FullMethod: IrisPredictorService_IrisPredict_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(IrisPredictorServer).IrisPredict(ctx, req.(*IrisPredictRequest))
+		return srv.(IrisPredictorServiceServer).IrisPredict(ctx, req.(*IrisPredictRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// IrisPredictor_ServiceDesc is the grpc.ServiceDesc for IrisPredictor service.
+// IrisPredictorService_ServiceDesc is the grpc.ServiceDesc for IrisPredictorService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var IrisPredictor_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "iris.v1.IrisPredictor",
-	HandlerType: (*IrisPredictorServer)(nil),
+var IrisPredictorService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "iris.v1.IrisPredictorService",
+	HandlerType: (*IrisPredictorServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "IrisPredict",
-			Handler:    _IrisPredictor_IrisPredict_Handler,
+			Handler:    _IrisPredictorService_IrisPredict_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
