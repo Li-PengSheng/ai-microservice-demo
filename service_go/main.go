@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -13,8 +14,8 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
+	_ "net/http/pprof" //
 	// --- 链路追踪相关核心依赖 ---
-
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
 	"go.opentelemetry.io/otel/propagation"
@@ -23,7 +24,8 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.17.0"
 
 	// 拦截器与插件
-	pb "my-go-gateway/gen" // 确保路径与你的 go.mod 一致
+	irisv1  "my-go-gateway/gen/iris/v1"
+	modelv1 "my-go-gateway/gen/model/v1"
 
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 )
@@ -81,6 +83,15 @@ func initTracer() (*sdktrace.TracerProvider, error) {
 }
 
 func main() {
+
+	go func() {
+		// 建议使用独立端口，避免干扰业务逻辑
+		slog.Info("pprof running on http://localhost:6060/debug/pprof")
+		if err := http.ListenAndServe(":6060", nil); err != nil {
+			slog.Error("pprof failed", "error", err)
+		}
+	}()
+
 	// 1. 初始化链路追踪
 	tp, err := initTracer()
 	if err != nil {
@@ -89,8 +100,12 @@ func main() {
 	}
 	defer func() { _ = tp.Shutdown(context.Background()) }()
 
+	addr := os.Getenv("AI_SERVICE_ADDR")
+	if addr == "" {
+		addr = "localhost:50051" // local dev fallback
+	}
 	conn, err := grpc.NewClient(
-		os.Getenv("AI_SERVICE_ADDR"),
+		addr,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithStatsHandler(otelgrpc.NewClientHandler()),
 	)
@@ -100,52 +115,105 @@ func main() {
 	}
 	defer conn.Close()
 
-	client := pb.NewIrisPredictorClient(conn)
+	irisClient := irisv1.NewIrisPredictorClient(conn)
+	modelClient := modelv1.NewModelPredictorClient(conn)
+
+	// 1. 定义全局对象池
+	var predictReqPool = sync.Pool{
+		New: func() interface{} {
+			return new(irisv1.IrisPredictRequest) // 篮子空了才创建新的
+		},
+	}
 
 	r := gin.Default()
 
 	r.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
-	r.POST("/predict", func(c *gin.Context) {
-
-		timer := prometheus.NewTimer(httpDuration.WithLabelValues("/predict"))
+	//iris
+	r.POST("/predict/iris", func(c *gin.Context) {
+		timer := prometheus.NewTimer(httpDuration.WithLabelValues("/predict/iris"))
 		defer timer.ObserveDuration()
 
-		var reqJson struct {
+		// ✓ bind into a plain struct first — proto structs don't have json tags
+		var body struct {
 			SepalLength float32 `json:"sepal_length"`
 			SepalWidth  float32 `json:"sepal_width"`
 			PetalLength float32 `json:"petal_length"`
 			PetalWidth  float32 `json:"petal_width"`
 		}
-		// 绑定 JSON
-		if err := c.ShouldBindJSON(&reqJson); err != nil {
+		if err := c.ShouldBindJSON(&body); err != nil {
+			httpRequestsTotal.WithLabelValues("/predict/iris", "400").Inc()
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		// ✓ correct type assertion
+		req := predictReqPool.Get().(*irisv1.IrisPredictRequest)
+		defer func() {
+			req.Reset()
+			predictReqPool.Put(req)
+		}()
+
+		// copy fields from plain struct into proto request
+		req.SepalLength = body.SepalLength
+		req.SepalWidth  = body.SepalWidth
+		req.PetalLength = body.PetalLength
+		req.PetalWidth  = body.PetalWidth
+
+		ctx, cancel := context.WithTimeout(c.Request.Context(), 3*time.Second)
 		defer cancel()
 
-		resp, err := client.Predict(ctx, &pb.PredictRequest{
-			SepalLength: reqJson.SepalLength,
-			SepalWidth:  reqJson.SepalWidth,
-			PetalLength: reqJson.PetalLength,
-			PetalWidth:  reqJson.PetalWidth,
-		})
-
+		// ✓ irisClient, not client
+		resp, err := irisClient.IrisPredict(ctx, req)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "AI 服务调用失败: " + err.Error()})
+			httpRequestsTotal.WithLabelValues("/predict/iris", "500").Inc()
+			slog.Error("iris service call failed", "error", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
-		httpRequestsTotal.WithLabelValues("/predict", "200").Inc()
 
-		// 4. 返回最终结果
+		httpRequestsTotal.WithLabelValues("/predict/iris", "200").Inc()
 		c.JSON(http.StatusOK, gin.H{
 			"result": resp.ClassName,
 			"id":     resp.ClassId,
-			"source": "Go Gateway -> Python AI",
+			"source": "Go Gateway -> Python AI (Iris)",
 		})
 
+	})
+
+	//models qwen
+	r.POST("/predict/model", func(c *gin.Context) {
+
+		timer := prometheus.NewTimer(httpDuration.WithLabelValues("/predict"))
+		defer timer.ObserveDuration()
+
+		var reqJson struct {
+			Prompt string `json:"prompt" binding:"required"`
+		}
+		if err := c.ShouldBindJSON(&reqJson); err != nil {
+			httpRequestsTotal.WithLabelValues("/predict", "400").Inc()
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		ctx, cancel := context.WithTimeout(c.Request.Context(), 60*time.Second)
+		defer cancel()
+		resp, err := modelClient.ModelPredict(ctx, &modelv1.ModelPredictRequest{
+			Prompt: reqJson.Prompt,
+		})
+		if err != nil {
+			httpRequestsTotal.WithLabelValues("/predict", "500").Inc()
+			slog.Error("model service call failed", "error", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		httpRequestsTotal.WithLabelValues("/predict", "200").Inc()
+		c.JSON(http.StatusOK, gin.H{
+			"reply":  resp.Response,
+			"model":  resp.ModelName,
+			"source": "Go Gateway -> Ollama (Qwen)",
+		})
 	})
 
 	slog.Info("Go Gateway running on http://localhost:8080")

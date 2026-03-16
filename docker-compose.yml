@@ -12,6 +12,7 @@ services:
     build: ./service_go
     ports:
       - "8080:8080" # 将容器的 8080 映射到宿主机的 8080
+      - "6060:6060"
     depends_on:
       - python-ai
     environment:

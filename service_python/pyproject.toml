@@ -7,6 +7,7 @@ requires-python = ">=3.12"
 dependencies = [
     "grpcio>=1.76.0",
     "grpcio-tools>=1.76.0",
+    "ollama>=0.6.1",
     "opentelemetry-api>=1.39.1",
     "opentelemetry-exporter-otlp>=1.39.1",
     "opentelemetry-instrumentation-grpc>=0.60b1",
@@ -17,3 +18,8 @@ dependencies = [
 ]
 [tool.pyright]
 extraPaths = ["./gen"]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.15.6",
+]

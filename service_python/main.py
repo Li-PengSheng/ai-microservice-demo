@@ -7,8 +7,9 @@ from concurrent import futures
 # 把 'gen' 目录加入到 Python 搜索路径，这样就能直接 import 生成的代码了
 sys.path.append(os.path.join(os.path.dirname(__file__), "gen"))
 import grpc
-import iris_pb2
-import iris_pb2_grpc
+import ollama
+from iris.v1 import iris_pb2, iris_pb2_grpc  # ← fixed
+from model.v1 import model_pb2, model_pb2_grpc  # ← fixed
 from opentelemetry import trace
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from opentelemetry.instrumentation.grpc import GrpcInstrumentorServer
@@ -25,9 +26,7 @@ from sklearn.ensemble import RandomForestClassifier
 # 1. 初始化追踪器，发送到 Jaeger
 resource = Resource.create({"service.name": "python-ai"})
 provider = TracerProvider(resource=resource)
-processor = BatchSpanProcessor(
-    OTLPSpanExporter(endpoint="jaeger:4317", insecure=True)
-)
+processor = BatchSpanProcessor(OTLPSpanExporter(endpoint="jaeger:4317", insecure=True))
 provider.add_span_processor(processor)
 trace.set_tracer_provider(provider)
 
@@ -43,26 +42,52 @@ iris = load_iris()
 clf = RandomForestClassifier()
 clf.fit(iris.data, iris.target)
 
+
 class IrisPredictorServicer(iris_pb2_grpc.IrisPredictorServicer):
     def Predict(self, request, context):
-        print(f"收到请求: sepal_len={request.sepal_length}, sepal_wid={request.sepal_width}...")
+        print(
+            f"收到请求: sepal_len={request.sepal_length}, sepal_wid={request.sepal_width}..."
+        )
 
-        features = [[
-                    request.sepal_length,
-                    request.sepal_width,
-                    request.petal_length,
-                    request.petal_width
-                ]]
+        features = [
+            [
+                request.sepal_length,
+                request.sepal_width,
+                request.petal_length,
+                request.petal_width,
+            ]
+        ]
 
         pred_idx = clf.predict(features)[0]
         class_name = iris.target_names[pred_idx]
 
-        return iris_pb2.PredictResponse(class_id=pred_idx, class_name=class_name)
+        return iris_pb2.IrisPredictResponse(class_id=pred_idx, class_name=class_name)
+
+
+# qwen model
+class ModelPredictorServicer(model_pb2_grpc.ModelPredictorServicer):
+    def __init__(self):
+        # 指向 WSL 宿主机上的 Ollama 服务
+        host = os.getenv("OLLAMA_HOST", "http://localhost:11434")
+        self.client = ollama.Client(host=host)
+
+    def Predict(self, request, context):
+        print(f"收到提示词: {request.prompt}")
+
+        response = self.client.generate(model="qwen2.5-1.5b", prompt=request.prompt)
+
+        return model_pb2.ModelPredictResponse(
+            response=response["response"], model_name="qwen2.5-1.5b"
+        )
+
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     iris_pb2_grpc.add_IrisPredictorServicer_to_server(IrisPredictorServicer(), server)
-    server.add_insecure_port('[::]:50051')
+    model_pb2_grpc.add_ModelPredictorServicer_to_server(
+        ModelPredictorServicer(), server
+    )
+    server.add_insecure_port("[::]:50051")
     print("Python AI Service (gRPC) is running on port 50051...")
     server.start()
     try:
@@ -74,7 +99,8 @@ def serve():
         provider.shutdown()
         print("Server stopped.")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     serve()
 
 # curl -X POST http://localhost:8080/predict -H "Content-Type: application/json" -d '{"sepal_length": 6.0, "sepal_width": 3.0, "petal_length": 5.5, "petal_width": 2.0}'

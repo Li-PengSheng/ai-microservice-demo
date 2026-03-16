@@ -1,0 +1,19 @@
+syntax = "proto3";
+package model.v1;
+
+option go_package = "ai-microservice-demo/service_go/gen/model/v1;modelv1";
+
+// 定义请求：用户的问题
+message ModelPredictRequest {
+  string prompt = 1;
+}
+
+// 定义响应：大模型的回答
+message ModelPredictResponse {
+  string response = 1;
+  string model_name = 2;
+}
+
+service ModelPredictorService {
+  rpc ModelPredict(ModelPredictRequest) returns (ModelPredictResponse);
+}

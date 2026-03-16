@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        (unknown)
-// source: iris.proto
+// source: iris/v1/iris.proto
 
-package proto
+package irisv1
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -22,7 +22,7 @@ const (
 )
 
 // 定义请求：鸢尾花的4个特征
-type PredictRequest struct {
+type IrisPredictRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	SepalLength   float32                `protobuf:"fixed32,1,opt,name=sepal_length,json=sepalLength,proto3" json:"sepal_length,omitempty"`
 	SepalWidth    float32                `protobuf:"fixed32,2,opt,name=sepal_width,json=sepalWidth,proto3" json:"sepal_width,omitempty"`
@@ -32,21 +32,21 @@ type PredictRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PredictRequest) Reset() {
-	*x = PredictRequest{}
-	mi := &file_iris_proto_msgTypes[0]
+func (x *IrisPredictRequest) Reset() {
+	*x = IrisPredictRequest{}
+	mi := &file_iris_v1_iris_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PredictRequest) String() string {
+func (x *IrisPredictRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PredictRequest) ProtoMessage() {}
+func (*IrisPredictRequest) ProtoMessage() {}
 
-func (x *PredictRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_iris_proto_msgTypes[0]
+func (x *IrisPredictRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_iris_v1_iris_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -57,33 +57,33 @@ func (x *PredictRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PredictRequest.ProtoReflect.Descriptor instead.
-func (*PredictRequest) Descriptor() ([]byte, []int) {
-	return file_iris_proto_rawDescGZIP(), []int{0}
+// Deprecated: Use IrisPredictRequest.ProtoReflect.Descriptor instead.
+func (*IrisPredictRequest) Descriptor() ([]byte, []int) {
+	return file_iris_v1_iris_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *PredictRequest) GetSepalLength() float32 {
+func (x *IrisPredictRequest) GetSepalLength() float32 {
 	if x != nil {
 		return x.SepalLength
 	}
 	return 0
 }
 
-func (x *PredictRequest) GetSepalWidth() float32 {
+func (x *IrisPredictRequest) GetSepalWidth() float32 {
 	if x != nil {
 		return x.SepalWidth
 	}
 	return 0
 }
 
-func (x *PredictRequest) GetPetalLength() float32 {
+func (x *IrisPredictRequest) GetPetalLength() float32 {
 	if x != nil {
 		return x.PetalLength
 	}
 	return 0
 }
 
-func (x *PredictRequest) GetPetalWidth() float32 {
+func (x *IrisPredictRequest) GetPetalWidth() float32 {
 	if x != nil {
 		return x.PetalWidth
 	}
@@ -91,7 +91,7 @@ func (x *PredictRequest) GetPetalWidth() float32 {
 }
 
 // 定义响应：预测的类别（int 或 string）
-type PredictResponse struct {
+type IrisPredictResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ClassId       int32                  `protobuf:"varint,1,opt,name=class_id,json=classId,proto3" json:"class_id,omitempty"`
 	ClassName     string                 `protobuf:"bytes,2,opt,name=class_name,json=className,proto3" json:"class_name,omitempty"`
@@ -99,21 +99,21 @@ type PredictResponse struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PredictResponse) Reset() {
-	*x = PredictResponse{}
-	mi := &file_iris_proto_msgTypes[1]
+func (x *IrisPredictResponse) Reset() {
+	*x = IrisPredictResponse{}
+	mi := &file_iris_v1_iris_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PredictResponse) String() string {
+func (x *IrisPredictResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PredictResponse) ProtoMessage() {}
+func (*IrisPredictResponse) ProtoMessage() {}
 
-func (x *PredictResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_iris_proto_msgTypes[1]
+func (x *IrisPredictResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_iris_v1_iris_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -124,66 +124,65 @@ func (x *PredictResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PredictResponse.ProtoReflect.Descriptor instead.
-func (*PredictResponse) Descriptor() ([]byte, []int) {
-	return file_iris_proto_rawDescGZIP(), []int{1}
+// Deprecated: Use IrisPredictResponse.ProtoReflect.Descriptor instead.
+func (*IrisPredictResponse) Descriptor() ([]byte, []int) {
+	return file_iris_v1_iris_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *PredictResponse) GetClassId() int32 {
+func (x *IrisPredictResponse) GetClassId() int32 {
 	if x != nil {
 		return x.ClassId
 	}
 	return 0
 }
 
-func (x *PredictResponse) GetClassName() string {
+func (x *IrisPredictResponse) GetClassName() string {
 	if x != nil {
 		return x.ClassName
 	}
 	return ""
 }
 
-var File_iris_proto protoreflect.FileDescriptor
+var File_iris_v1_iris_proto protoreflect.FileDescriptor
 
-const file_iris_proto_rawDesc = "" +
+const file_iris_v1_iris_proto_rawDesc = "" +
 	"\n" +
-	"\n" +
-	"iris.proto\x12\x04iris\"\x98\x01\n" +
-	"\x0ePredictRequest\x12!\n" +
+	"\x12iris/v1/iris.proto\x12\airis.v1\"\x9c\x01\n" +
+	"\x12IrisPredictRequest\x12!\n" +
 	"\fsepal_length\x18\x01 \x01(\x02R\vsepalLength\x12\x1f\n" +
 	"\vsepal_width\x18\x02 \x01(\x02R\n" +
 	"sepalWidth\x12!\n" +
 	"\fpetal_length\x18\x03 \x01(\x02R\vpetalLength\x12\x1f\n" +
 	"\vpetal_width\x18\x04 \x01(\x02R\n" +
-	"petalWidth\"K\n" +
-	"\x0fPredictResponse\x12\x19\n" +
+	"petalWidth\"O\n" +
+	"\x13IrisPredictResponse\x12\x19\n" +
 	"\bclass_id\x18\x01 \x01(\x05R\aclassId\x12\x1d\n" +
 	"\n" +
-	"class_name\x18\x02 \x01(\tR\tclassName2G\n" +
-	"\rIrisPredictor\x126\n" +
-	"\aPredict\x12\x14.iris.PredictRequest\x1a\x15.iris.PredictResponseBp\n" +
-	"\bcom.irisB\tIrisProtoP\x01Z)ai-microservice-demo/service_go/gen/proto\xa2\x02\x03IXX\xaa\x02\x04Iris\xca\x02\x04Iris\xe2\x02\x10Iris\\GPBMetadata\xea\x02\x04Irisb\x06proto3"
+	"class_name\x18\x02 \x01(\tR\tclassName2Y\n" +
+	"\rIrisPredictor\x12H\n" +
+	"\vIrisPredict\x12\x1b.iris.v1.IrisPredictRequest\x1a\x1c.iris.v1.IrisPredictResponseB\x8f\x01\n" +
+	"\vcom.iris.v1B\tIrisProtoP\x01Z8ai-microservice-demo/service_go/gen/proto/iris/v1;irisv1\xa2\x02\x03IXX\xaa\x02\aIris.V1\xca\x02\aIris\\V1\xe2\x02\x13Iris\\V1\\GPBMetadata\xea\x02\bIris::V1b\x06proto3"
 
 var (
-	file_iris_proto_rawDescOnce sync.Once
-	file_iris_proto_rawDescData []byte
+	file_iris_v1_iris_proto_rawDescOnce sync.Once
+	file_iris_v1_iris_proto_rawDescData []byte
 )
 
-func file_iris_proto_rawDescGZIP() []byte {
-	file_iris_proto_rawDescOnce.Do(func() {
-		file_iris_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_iris_proto_rawDesc), len(file_iris_proto_rawDesc)))
+func file_iris_v1_iris_proto_rawDescGZIP() []byte {
+	file_iris_v1_iris_proto_rawDescOnce.Do(func() {
+		file_iris_v1_iris_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_iris_v1_iris_proto_rawDesc), len(file_iris_v1_iris_proto_rawDesc)))
 	})
-	return file_iris_proto_rawDescData
+	return file_iris_v1_iris_proto_rawDescData
 }
 
-var file_iris_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-var file_iris_proto_goTypes = []any{
-	(*PredictRequest)(nil),  // 0: iris.PredictRequest
-	(*PredictResponse)(nil), // 1: iris.PredictResponse
+var file_iris_v1_iris_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_iris_v1_iris_proto_goTypes = []any{
+	(*IrisPredictRequest)(nil),  // 0: iris.v1.IrisPredictRequest
+	(*IrisPredictResponse)(nil), // 1: iris.v1.IrisPredictResponse
 }
-var file_iris_proto_depIdxs = []int32{
-	0, // 0: iris.IrisPredictor.Predict:input_type -> iris.PredictRequest
-	1, // 1: iris.IrisPredictor.Predict:output_type -> iris.PredictResponse
+var file_iris_v1_iris_proto_depIdxs = []int32{
+	0, // 0: iris.v1.IrisPredictor.IrisPredict:input_type -> iris.v1.IrisPredictRequest
+	1, // 1: iris.v1.IrisPredictor.IrisPredict:output_type -> iris.v1.IrisPredictResponse
 	1, // [1:2] is the sub-list for method output_type
 	0, // [0:1] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
@@ -191,26 +190,26 @@ var file_iris_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for field type_name
 }
 
-func init() { file_iris_proto_init() }
-func file_iris_proto_init() {
-	if File_iris_proto != nil {
+func init() { file_iris_v1_iris_proto_init() }
+func file_iris_v1_iris_proto_init() {
+	if File_iris_v1_iris_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_iris_proto_rawDesc), len(file_iris_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_iris_v1_iris_proto_rawDesc), len(file_iris_v1_iris_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_iris_proto_goTypes,
-		DependencyIndexes: file_iris_proto_depIdxs,
-		MessageInfos:      file_iris_proto_msgTypes,
+		GoTypes:           file_iris_v1_iris_proto_goTypes,
+		DependencyIndexes: file_iris_v1_iris_proto_depIdxs,
+		MessageInfos:      file_iris_v1_iris_proto_msgTypes,
 	}.Build()
-	File_iris_proto = out.File
-	file_iris_proto_goTypes = nil
-	file_iris_proto_depIdxs = nil
+	File_iris_v1_iris_proto = out.File
+	file_iris_v1_iris_proto_goTypes = nil
+	file_iris_v1_iris_proto_depIdxs = nil
 }
