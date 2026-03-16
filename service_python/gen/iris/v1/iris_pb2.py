@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x12iris/v1/iris.proto\x12\x07iris.v1\"\x9c\x01\n\x12IrisPredictRequest\x12!\n\x0csepal_length\x18\x01 \x01(\x02R\x0bsepalLength\x12\x1f\n\x0bsepal_width\x18\x02 \x01(\x02R\nsepalWidth\x12!\n\x0cpetal_length\x18\x03 \x01(\x02R\x0bpetalLength\x12\x1f\n\x0bpetal_width\x18\x04 \x01(\x02R\npetalWidth\"O\n\x13IrisPredictResponse\x12\x19\n\x08\x63lass_id\x18\x01 \x01(\x05R\x07\x63lassId\x12\x1d\n\nclass_name\x18\x02 \x01(\tR\tclassName2`\n\x14IrisPredictorService\x12H\n\x0bIrisPredict\x12\x1b.iris.v1.IrisPredictRequest\x1a\x1c.iris.v1.IrisPredictResponseB\x8f\x01\n\x0b\x63om.iris.v1B\tIrisProtoP\x01Z8ai-microservice-demo/service_go/gen/proto/iris/v1;irisv1\xa2\x02\x03IXX\xaa\x02\x07Iris.V1\xca\x02\x07Iris\\V1\xe2\x02\x13Iris\\V1\\GPBMetadata\xea\x02\x08Iris::V1b\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x12iris/v1/iris.proto\x12\x07iris.v1\"\x9c\x01\n\x12IrisPredictRequest\x12!\n\x0csepal_length\x18\x01 \x01(\x02R\x0bsepalLength\x12\x1f\n\x0bsepal_width\x18\x02 \x01(\x02R\nsepalWidth\x12!\n\x0cpetal_length\x18\x03 \x01(\x02R\x0bpetalLength\x12\x1f\n\x0bpetal_width\x18\x04 \x01(\x02R\npetalWidth\"O\n\x13IrisPredictResponse\x12\x19\n\x08\x63lass_id\x18\x01 \x01(\x05R\x07\x63lassId\x12\x1d\n\nclass_name\x18\x02 \x01(\tR\tclassName2Y\n\rIrisPredictor\x12H\n\x0bIrisPredict\x12\x1b.iris.v1.IrisPredictRequest\x1a\x1c.iris.v1.IrisPredictResponseB\x8f\x01\n\x0b\x63om.iris.v1B\tIrisProtoP\x01Z8ai-microservice-demo/service_go/gen/proto/iris/v1;irisv1\xa2\x02\x03IXX\xaa\x02\x07Iris.V1\xca\x02\x07Iris\\V1\xe2\x02\x13Iris\\V1\\GPBMetadata\xea\x02\x08Iris::V1b\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -36,6 +36,6 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_IRISPREDICTREQUEST']._serialized_end=188
   _globals['_IRISPREDICTRESPONSE']._serialized_start=190
   _globals['_IRISPREDICTRESPONSE']._serialized_end=269
-  _globals['_IRISPREDICTORSERVICE']._serialized_start=271
-  _globals['_IRISPREDICTORSERVICE']._serialized_end=367
+  _globals['_IRISPREDICTOR']._serialized_start=271
+  _globals['_IRISPREDICTOR']._serialized_end=360
 # @@protoc_insertion_point(module_scope)

@@ -5,7 +5,7 @@ import grpc
 from model.v1 import model_pb2 as model_dot_v1_dot_model__pb2
 
 
-class ModelPredictorServiceStub(object):
+class ModelPredictorStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -15,13 +15,13 @@ class ModelPredictorServiceStub(object):
             channel: A grpc.Channel.
         """
         self.ModelPredict = channel.unary_unary(
-                '/model.v1.ModelPredictorService/ModelPredict',
+                '/model.v1.ModelPredictor/ModelPredict',
                 request_serializer=model_dot_v1_dot_model__pb2.ModelPredictRequest.SerializeToString,
                 response_deserializer=model_dot_v1_dot_model__pb2.ModelPredictResponse.FromString,
                 _registered_method=True)
 
 
-class ModelPredictorServiceServicer(object):
+class ModelPredictorServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def ModelPredict(self, request, context):
@@ -31,7 +31,7 @@ class ModelPredictorServiceServicer(object):
         raise NotImplementedError('Method not implemented!')
 
 
-def add_ModelPredictorServiceServicer_to_server(servicer, server):
+def add_ModelPredictorServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'ModelPredict': grpc.unary_unary_rpc_method_handler(
                     servicer.ModelPredict,
@@ -40,13 +40,13 @@ def add_ModelPredictorServiceServicer_to_server(servicer, server):
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'model.v1.ModelPredictorService', rpc_method_handlers)
+            'model.v1.ModelPredictor', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('model.v1.ModelPredictorService', rpc_method_handlers)
+    server.add_registered_method_handlers('model.v1.ModelPredictor', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
-class ModelPredictorService(object):
+class ModelPredictor(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
@@ -63,7 +63,7 @@ class ModelPredictorService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/model.v1.ModelPredictorService/ModelPredict',
+            '/model.v1.ModelPredictor/ModelPredict',
             model_dot_v1_dot_model__pb2.ModelPredictRequest.SerializeToString,
             model_dot_v1_dot_model__pb2.ModelPredictResponse.FromString,
             options,

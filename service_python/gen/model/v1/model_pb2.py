@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x14model/v1/model.proto\x12\x08model.v1\"-\n\x13ModelPredictRequest\x12\x16\n\x06prompt\x18\x01 \x01(\tR\x06prompt\"Q\n\x14ModelPredictResponse\x12\x1a\n\x08response\x18\x01 \x01(\tR\x08response\x12\x1d\n\nmodel_name\x18\x02 \x01(\tR\tmodelName2f\n\x15ModelPredictorService\x12M\n\x0cModelPredict\x12\x1d.model.v1.ModelPredictRequest\x1a\x1e.model.v1.ModelPredictResponseB\x97\x01\n\x0c\x63om.model.v1B\nModelProtoP\x01Z:ai-microservice-demo/service_go/gen/proto/model/v1;modelv1\xa2\x02\x03MXX\xaa\x02\x08Model.V1\xca\x02\x08Model\\V1\xe2\x02\x14Model\\V1\\GPBMetadata\xea\x02\tModel::V1b\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x14model/v1/model.proto\x12\x08model.v1\"-\n\x13ModelPredictRequest\x12\x16\n\x06prompt\x18\x01 \x01(\tR\x06prompt\"Q\n\x14ModelPredictResponse\x12\x1a\n\x08response\x18\x01 \x01(\tR\x08response\x12\x1d\n\nmodel_name\x18\x02 \x01(\tR\tmodelName2_\n\x0eModelPredictor\x12M\n\x0cModelPredict\x12\x1d.model.v1.ModelPredictRequest\x1a\x1e.model.v1.ModelPredictResponseB\x97\x01\n\x0c\x63om.model.v1B\nModelProtoP\x01Z:ai-microservice-demo/service_go/gen/proto/model/v1;modelv1\xa2\x02\x03MXX\xaa\x02\x08Model.V1\xca\x02\x08Model\\V1\xe2\x02\x14Model\\V1\\GPBMetadata\xea\x02\tModel::V1b\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -36,6 +36,6 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_MODELPREDICTREQUEST']._serialized_end=79
   _globals['_MODELPREDICTRESPONSE']._serialized_start=81
   _globals['_MODELPREDICTRESPONSE']._serialized_end=162
-  _globals['_MODELPREDICTORSERVICE']._serialized_start=164
-  _globals['_MODELPREDICTORSERVICE']._serialized_end=266
+  _globals['_MODELPREDICTOR']._serialized_start=164
+  _globals['_MODELPREDICTOR']._serialized_end=259
 # @@protoc_insertion_point(module_scope)

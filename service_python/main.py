@@ -43,7 +43,7 @@ clf = RandomForestClassifier()
 clf.fit(iris.data, iris.target)
 
 
-class IrisPredictorServicer(iris_pb2_grpc.IrisPredictorServicer):
+class IrisPredictor(iris_pb2_grpc.IrisPredictorServicer):
     def IrisPredict(self, request, context):
         print(
             f"收到请求: sepal_len={request.sepal_length}, sepal_wid={request.sepal_width}..."
@@ -65,7 +65,7 @@ class IrisPredictorServicer(iris_pb2_grpc.IrisPredictorServicer):
 
 
 # qwen model
-class ModelPredictorServicer(model_pb2_grpc.ModelPredictorServicer):
+class ModelPredictor(model_pb2_grpc.ModelPredictorServicer):
     def __init__(self):
         # 指向 WSL 宿主机上的 Ollama 服务
         host = os.getenv("OLLAMA_HOST", "http://localhost:11434")
@@ -83,9 +83,9 @@ class ModelPredictorServicer(model_pb2_grpc.ModelPredictorServicer):
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    iris_pb2_grpc.add_IrisPredictorServicer_to_server(IrisPredictorServicer(), server)
+    iris_pb2_grpc.add_IrisPredictorServicer_to_server(IrisPredictor(), server)
     model_pb2_grpc.add_ModelPredictorServicer_to_server(
-        ModelPredictorServicer(), server
+        ModelPredictor(), server
     )
     server.add_insecure_port("[::]:50051")
     print("Python AI Service (gRPC) is running on port 50051...")

@@ -5,7 +5,7 @@ import grpc
 from iris.v1 import iris_pb2 as iris_dot_v1_dot_iris__pb2
 
 
-class IrisPredictorServiceStub(object):
+class IrisPredictorStub(object):
     """定义服务接口
     """
 
@@ -16,13 +16,13 @@ class IrisPredictorServiceStub(object):
             channel: A grpc.Channel.
         """
         self.IrisPredict = channel.unary_unary(
-                '/iris.v1.IrisPredictorService/IrisPredict',
+                '/iris.v1.IrisPredictor/IrisPredict',
                 request_serializer=iris_dot_v1_dot_iris__pb2.IrisPredictRequest.SerializeToString,
                 response_deserializer=iris_dot_v1_dot_iris__pb2.IrisPredictResponse.FromString,
                 _registered_method=True)
 
 
-class IrisPredictorServiceServicer(object):
+class IrisPredictorServicer(object):
     """定义服务接口
     """
 
@@ -33,7 +33,7 @@ class IrisPredictorServiceServicer(object):
         raise NotImplementedError('Method not implemented!')
 
 
-def add_IrisPredictorServiceServicer_to_server(servicer, server):
+def add_IrisPredictorServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'IrisPredict': grpc.unary_unary_rpc_method_handler(
                     servicer.IrisPredict,
@@ -42,13 +42,13 @@ def add_IrisPredictorServiceServicer_to_server(servicer, server):
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'iris.v1.IrisPredictorService', rpc_method_handlers)
+            'iris.v1.IrisPredictor', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('iris.v1.IrisPredictorService', rpc_method_handlers)
+    server.add_registered_method_handlers('iris.v1.IrisPredictor', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
-class IrisPredictorService(object):
+class IrisPredictor(object):
     """定义服务接口
     """
 
@@ -66,7 +66,7 @@ class IrisPredictorService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/iris.v1.IrisPredictorService/IrisPredict',
+            '/iris.v1.IrisPredictor/IrisPredict',
             iris_dot_v1_dot_iris__pb2.IrisPredictRequest.SerializeToString,
             iris_dot_v1_dot_iris__pb2.IrisPredictResponse.FromString,
             options,

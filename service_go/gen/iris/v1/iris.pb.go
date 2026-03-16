@@ -158,8 +158,8 @@ const file_iris_v1_iris_proto_rawDesc = "" +
 	"\x13IrisPredictResponse\x12\x19\n" +
 	"\bclass_id\x18\x01 \x01(\x05R\aclassId\x12\x1d\n" +
 	"\n" +
-	"class_name\x18\x02 \x01(\tR\tclassName2`\n" +
-	"\x14IrisPredictorService\x12H\n" +
+	"class_name\x18\x02 \x01(\tR\tclassName2Y\n" +
+	"\rIrisPredictor\x12H\n" +
 	"\vIrisPredict\x12\x1b.iris.v1.IrisPredictRequest\x1a\x1c.iris.v1.IrisPredictResponseB\x8f\x01\n" +
 	"\vcom.iris.v1B\tIrisProtoP\x01Z8ai-microservice-demo/service_go/gen/proto/iris/v1;irisv1\xa2\x02\x03IXX\xaa\x02\aIris.V1\xca\x02\aIris\\V1\xe2\x02\x13Iris\\V1\\GPBMetadata\xea\x02\bIris::V1b\x06proto3"
 
@@ -181,8 +181,8 @@ var file_iris_v1_iris_proto_goTypes = []any{
 	(*IrisPredictResponse)(nil), // 1: iris.v1.IrisPredictResponse
 }
 var file_iris_v1_iris_proto_depIdxs = []int32{
-	0, // 0: iris.v1.IrisPredictorService.IrisPredict:input_type -> iris.v1.IrisPredictRequest
-	1, // 1: iris.v1.IrisPredictorService.IrisPredict:output_type -> iris.v1.IrisPredictResponse
+	0, // 0: iris.v1.IrisPredictor.IrisPredict:input_type -> iris.v1.IrisPredictRequest
+	1, // 1: iris.v1.IrisPredictor.IrisPredict:output_type -> iris.v1.IrisPredictResponse
 	1, // [1:2] is the sub-list for method output_type
 	0, // [0:1] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
