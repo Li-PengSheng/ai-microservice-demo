@@ -74,7 +74,7 @@ class ModelPredictor(model_pb2_grpc.ModelPredictorServicer):
     def ModelPredict(self, request, context):
         print(f"收到提示词: {request.prompt}")
 
-        response = self.client.generate(model="qwen2.5-1.5b", prompt=request.prompt)
+        response = self.client.generate(model="qwen2.5:1.5b", prompt=request.prompt)
 
         return model_pb2.ModelPredictResponse(
             response=response["response"], model_name="qwen2.5-1.5b"
