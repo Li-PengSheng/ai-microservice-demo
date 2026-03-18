@@ -26,7 +26,9 @@ from sklearn.ensemble import RandomForestClassifier
 # 1. 初始化追踪器，发送到 Jaeger
 resource = Resource.create({"service.name": "python-ai"})
 provider = TracerProvider(resource=resource)
-processor = BatchSpanProcessor(OTLPSpanExporter(endpoint="jaeger:4317", insecure=True))
+jaeger_endpoint = os.getenv("JAEGER_ENDPOINT", "localhost:4317")
+processor = BatchSpanProcessor(OTLPSpanExporter(endpoint=jaeger_endpoint, insecure=True))
+# processor = BatchSpanProcessor(OTLPSpanExporter(endpoint="jaeger:4317", insecure=True))
 provider.add_span_processor(processor)
 trace.set_tracer_provider(provider)
 

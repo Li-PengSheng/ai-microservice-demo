@@ -103,6 +103,24 @@ EOF
   fi
 }
 
+patch_jaeger_endpoint() {
+  step "Patching Jaeger endpoint with current WSL eth0 IP"
+  WSL_IP=$(ip addr show eth0 | grep 'inet ' | awk '{print $2}' | cut -d/ -f1)
+  if [[ -z "$WSL_IP" ]]; then
+    warn "Could not detect WSL eth0 IP — skipping Jaeger patch"
+    return
+  fi
+  info "WSL eth0 IP: $WSL_IP"
+
+  # Patch go-gateway.yaml
+  sed -i "s|value: \".*:4317\"|value: \"$WSL_IP:4317\"|" "$SCRIPT_DIR/go-gateway.yaml"
+  success "go-gateway.yaml Jaeger endpoint patched → $WSL_IP:4317"
+
+  # Patch python-ai.yaml
+  sed -i "s|value: \".*:4317\"|value: \"$WSL_IP:4317\"|" "$SCRIPT_DIR/python-ai.yaml"
+  success "python-ai.yaml Jaeger endpoint patched → $WSL_IP:4317"
+}
+
 build_images() {
   step "Building Docker images"
 
@@ -264,6 +282,7 @@ case "$CMD" in
     check_deps
     patch_ollama_svc
     patch_prometheus_target
+    patch_jaeger_endpoint
     apply_manifests
     wait_for_pods
     show_status
@@ -288,6 +307,7 @@ case "$CMD" in
     check_deps
     patch_ollama_svc
     patch_prometheus_target
+    patch_jaeger_endpoint
     build_images
     apply_manifests
     wait_for_pods

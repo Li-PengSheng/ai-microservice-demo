@@ -59,9 +59,15 @@ func init() {
 // 初始化 OpenTelemetry 追踪器
 func initTracer() (*sdktrace.TracerProvider, error) {
 	ctx := context.Background()
+
+	jaegerEndpoint := os.Getenv("JAEGER_ENDPOINT")
+	if jaegerEndpoint == "" {
+		jaegerEndpoint = "localhost:4317" // local dev fallback
+	}
+
 	// 连接到 Docker Compose 中的 Jaeger 服务
 	exporter, err := otlptracegrpc.New(ctx,
-		otlptracegrpc.WithEndpoint("jaeger:4317"),
+		otlptracegrpc.WithEndpoint(jaegerEndpoint),
 		otlptracegrpc.WithInsecure(),
 	)
 	if err != nil {
