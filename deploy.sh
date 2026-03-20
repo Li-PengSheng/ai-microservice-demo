@@ -32,8 +32,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 GO_SERVICE_DIR="$SCRIPT_DIR/service_go"
 PYTHON_SERVICE_DIR="$SCRIPT_DIR/service_python"
 
-GO_IMAGE="go-gateway:v1"
-PYTHON_IMAGE="python-ai:v1"
+GO_IMAGE="go-gateway:v2"
+PYTHON_IMAGE="python-ai:v2"
 
 # K8s manifests — order matters
 K8S_MANIFESTS=(
@@ -139,6 +139,57 @@ build_images() {
   else
     warn "service_python/ not found — skipping Python image"
   fi
+}
+
+load_images() {
+  step "Loading Docker images into the cluster"
+
+  # Use the active kubectl context as the source of truth
+  CURRENT_CTX=$(kubectl config current-context 2>/dev/null || echo "")
+  info "Active kubectl context: ${CURRENT_CTX:-<none>}"
+
+  if [[ "$CURRENT_CTX" == *"minikube"* ]]; then
+    info "minikube context — loading via 'minikube image load'"
+    for img in "$GO_IMAGE" "$PYTHON_IMAGE"; do
+      info "Loading $img ..."
+      minikube image load "$img"
+      success "$img loaded into minikube"
+    done
+
+  elif [[ "$CURRENT_CTX" == *"kind"* ]]; then
+    # Extract cluster name from context (format: kind-<clustername>)
+    KIND_CLUSTER="${CURRENT_CTX#kind-}"
+    info "kind context — loading via 'kind load docker-image' (cluster: $KIND_CLUSTER)"
+    for img in "$GO_IMAGE" "$PYTHON_IMAGE"; do
+      info "Loading $img ..."
+      kind load docker-image "$img" --name "$KIND_CLUSTER"
+      success "$img loaded into kind"
+    done
+
+  elif [[ "$CURRENT_CTX" == *"k3s"* ]] || [[ "$CURRENT_CTX" == *"default"* && "$(command -v k3s)" ]]; then
+    info "k3s context — importing via 'k3s ctr images import'"
+    for img in "$GO_IMAGE" "$PYTHON_IMAGE"; do
+      info "Loading $img ..."
+      docker save "$img" | sudo k3s ctr images import -
+      success "$img loaded into k3s"
+    done
+
+  else
+    warn "Context '$CURRENT_CTX' is not a recognised local cluster (minikube/kind/k3s)."
+    warn "Skipping image load — if using a remote registry, push manually:"
+    warn "  docker tag $GO_IMAGE <registry>/$GO_IMAGE && docker push <registry>/$GO_IMAGE"
+  fi
+}
+
+rollout_restart() {
+  step "Forcing rollout restart to pick up new images"
+  for deploy in go-gateway python-ai; do
+    if kubectl get deployment "$deploy" &>/dev/null; then
+      info "Restarting deployment/$deploy ..."
+      kubectl rollout restart deployment/"$deploy"
+      success "$deploy restarted"
+    fi
+  done
 }
 
 apply_manifests() {
@@ -277,6 +328,7 @@ case "$CMD" in
   build)
     check_deps
     build_images
+    load_images
     ;;
   apply)
     check_deps
@@ -284,6 +336,7 @@ case "$CMD" in
     patch_prometheus_target
     patch_jaeger_endpoint
     apply_manifests
+    rollout_restart
     wait_for_pods
     show_status
     ;;
@@ -309,7 +362,9 @@ case "$CMD" in
     patch_prometheus_target
     patch_jaeger_endpoint
     build_images
+    load_images
     apply_manifests
+    rollout_restart
     wait_for_pods
     start_monitoring
     show_status

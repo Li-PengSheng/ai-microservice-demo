@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: go-gateway
-          image: go-gateway:v1
+          image: go-gateway:v2
           ports:
             - containerPort: 8080 #
           env:

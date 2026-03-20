@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: python-ai
-          image: python-ai:v1
+          image: python-ai:v2
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 50051 #
@@ -24,6 +24,8 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 10
           env:
+            - name: PYTHONUNBUFFERED
+              value: "1"
             - name: OLLAMA_HOST
               value: "http://ollama-svc:11434"
             - name: JAEGER_ENDPOINT

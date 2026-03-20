@@ -75,11 +75,16 @@ class ModelPredictor(model_pb2_grpc.ModelPredictorServicer):
 
     def ModelPredict(self, request, context):
         print(f"收到提示词: {request.prompt}")
-
         response = self.client.generate(model="qwen2.5:1.5b", prompt=request.prompt)
+        # 增加打印，看看字典里有没有 eval_count
+        print(f"Eval Count: {response.eval_count}")
 
         return model_pb2.ModelPredictResponse(
-            response=response["response"], model_name="qwen2.5-1.5b"
+            response=response.response,
+            model_name="qwen2.5-1.5b",
+            prompt_eval_count=response.prompt_eval_count or 0,
+            eval_count=response.eval_count or 0,
+            eval_duration=response.eval_duration or 0,
         )
 
 

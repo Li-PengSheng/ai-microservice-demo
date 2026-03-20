@@ -12,6 +12,10 @@ message ModelPredictRequest {
 message ModelPredictResponse {
   string response = 1;
   string model_name = 2;
+
+  int32 prompt_eval_count = 3; // 输入的提示词 Token 数量
+  int32 eval_count = 4;        // 模型生成的 Token 数量
+  int64 eval_duration = 5;     // 模型生成耗时 (通常为纳秒)
 }
 
 service ModelPredictor {

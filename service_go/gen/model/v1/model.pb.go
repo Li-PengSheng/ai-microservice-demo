@@ -68,11 +68,14 @@ func (x *ModelPredictRequest) GetPrompt() string {
 
 // 定义响应：大模型的回答
 type ModelPredictResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Response      string                 `protobuf:"bytes,1,opt,name=response,proto3" json:"response,omitempty"`
-	ModelName     string                 `protobuf:"bytes,2,opt,name=model_name,json=modelName,proto3" json:"model_name,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	Response        string                 `protobuf:"bytes,1,opt,name=response,proto3" json:"response,omitempty"`
+	ModelName       string                 `protobuf:"bytes,2,opt,name=model_name,json=modelName,proto3" json:"model_name,omitempty"`
+	PromptEvalCount int32                  `protobuf:"varint,3,opt,name=prompt_eval_count,json=promptEvalCount,proto3" json:"prompt_eval_count,omitempty"` // 输入的提示词 Token 数量
+	EvalCount       int32                  `protobuf:"varint,4,opt,name=eval_count,json=evalCount,proto3" json:"eval_count,omitempty"`                     // 模型生成的 Token 数量
+	EvalDuration    int64                  `protobuf:"varint,5,opt,name=eval_duration,json=evalDuration,proto3" json:"eval_duration,omitempty"`            // 模型生成耗时 (通常为纳秒)
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *ModelPredictResponse) Reset() {
@@ -119,17 +122,42 @@ func (x *ModelPredictResponse) GetModelName() string {
 	return ""
 }
 
+func (x *ModelPredictResponse) GetPromptEvalCount() int32 {
+	if x != nil {
+		return x.PromptEvalCount
+	}
+	return 0
+}
+
+func (x *ModelPredictResponse) GetEvalCount() int32 {
+	if x != nil {
+		return x.EvalCount
+	}
+	return 0
+}
+
+func (x *ModelPredictResponse) GetEvalDuration() int64 {
+	if x != nil {
+		return x.EvalDuration
+	}
+	return 0
+}
+
 var File_model_v1_model_proto protoreflect.FileDescriptor
 
 const file_model_v1_model_proto_rawDesc = "" +
 	"\n" +
 	"\x14model/v1/model.proto\x12\bmodel.v1\"-\n" +
 	"\x13ModelPredictRequest\x12\x16\n" +
-	"\x06prompt\x18\x01 \x01(\tR\x06prompt\"Q\n" +
+	"\x06prompt\x18\x01 \x01(\tR\x06prompt\"\xc1\x01\n" +
 	"\x14ModelPredictResponse\x12\x1a\n" +
 	"\bresponse\x18\x01 \x01(\tR\bresponse\x12\x1d\n" +
 	"\n" +
-	"model_name\x18\x02 \x01(\tR\tmodelName2_\n" +
+	"model_name\x18\x02 \x01(\tR\tmodelName\x12*\n" +
+	"\x11prompt_eval_count\x18\x03 \x01(\x05R\x0fpromptEvalCount\x12\x1d\n" +
+	"\n" +
+	"eval_count\x18\x04 \x01(\x05R\tevalCount\x12#\n" +
+	"\reval_duration\x18\x05 \x01(\x03R\fevalDuration2_\n" +
 	"\x0eModelPredictor\x12M\n" +
 	"\fModelPredict\x12\x1d.model.v1.ModelPredictRequest\x1a\x1e.model.v1.ModelPredictResponseB\x97\x01\n" +
 	"\fcom.model.v1B\n" +
