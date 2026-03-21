@@ -6,7 +6,6 @@ services:
     build: ./service_python
     environment:
     - OLLAMA_HOST=http://172.18.0.1:11434
-    - JAEGER_ENDPOINT=jaeger:4317
     networks:
       - ai-network
     healthcheck:
@@ -27,7 +26,6 @@ services:
         condition: service_healthy
     environment:
       - AI_SERVICE_ADDR=python-ai:50051 # 关键：通过服务名通信
-      - JAEGER_ENDPOINT=jaeger:4317
     networks:
       - ai-network
     healthcheck:
@@ -44,7 +42,6 @@ services:
       - "host.docker.internal:host-gateway"
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus_data:/prometheus
     networks:
       - ai-network
     ports:
@@ -59,8 +56,6 @@ services:
       - ai-network
     depends_on:
       - prometheus
-    volumes:
-      - grafana_data:/var/lib/grafana
 
   # 新增：Jaeger 追踪中心
   jaeger:
@@ -87,7 +82,3 @@ services:
 networks:
   ai-network:
     driver: bridge
-
-volumes:
-  prometheus_data:
-  grafana_data:

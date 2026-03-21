@@ -100,10 +100,8 @@ Environment variables for each service:
 | Variable | Service | Default | Description |
 |---|---|---|---|
 | `AI_SERVICE_ADDR` | go-gateway | `localhost:50051` | Python gRPC backend address |
-| `JAEGER_ENDPOINT` | go-gateway | `localhost:4317` | Jaeger OTLP gRPC endpoint |
 | `OLLAMA_HOST` | python-ai | `http://localhost:11434` | Ollama API base URL |
 | `MODEL_NAME` | python-ai | `qwen2.5:1.5b` | Ollama model to serve |
-| `JAEGER_ENDPOINT` | python-ai | `localhost:4317` | Jaeger OTLP gRPC endpoint |
 
 ## Load Testing
 
