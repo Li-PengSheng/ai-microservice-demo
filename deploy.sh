@@ -258,7 +258,9 @@ port_forward_gateway() {
   info "Prometheus will scrape metrics at http://host.docker.internal:8080/metrics"
   warn "Keep this terminal open — Ctrl+C to stop"
   echo ""
-  kubectl port-forward --address 0.0.0.0 svc/go-gateway-svc 8080:80
+  kubectl port-forward --address 0.0.0.0 svc/go-gateway-svc 8080:80 &
+  kubectl port-forward --address 0.0.0.0 svc/go-gateway-svc 6060:6060 &
+  wait
 }
 
 show_status() {

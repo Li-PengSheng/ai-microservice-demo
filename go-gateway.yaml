@@ -17,6 +17,7 @@ spec:
           image: go-gateway:v2
           ports:
             - containerPort: 8080 #
+            - containerPort: 6060
           env:
             - name: AI_SERVICE_ADDR
               value: "python-ai-svc:50051" # 使用 K8s Service 名称进行内部通信
@@ -43,3 +44,7 @@ spec:
       protocol: TCP
       port: 80
       targetPort: 8080
+    - name: pprof # 👈 新增：为 pprof 配置 Service 端口映射
+      protocol: TCP
+      port: 6060
+      targetPort: 6060
