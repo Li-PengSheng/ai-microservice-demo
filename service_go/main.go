@@ -56,7 +56,7 @@ var (
         prometheus.HistogramOpts{
 			Name:    "grpc_request_duration_seconds",
 			Help:    "Histogram of gRPC request duration.", // ← add this
-			Buckets: prometheus.DefBuckets,  
+			Buckets: prometheus.DefBuckets,
         },
         []string{"method", "status"},
     )
@@ -76,7 +76,7 @@ var (
 			Name:    "ai_generation_duration_seconds",
 			Help:    "Histogram of AI model purely generation duration.",
 			// 针对大模型生成，桶的范围要设置得大一些 (0.5秒 到 60秒)
-			Buckets: []float64{.5, 1, 2, 5, 10, 20, 30, 60}, 
+			Buckets: []float64{.5, 1, 2, 5, 10, 20, 30, 60},
 		},
 		[]string{"model"},
 	)
@@ -224,7 +224,7 @@ func main() {
 			grpcStatus = "error"
 		}
 		grpcRequestDuration.WithLabelValues("IrisPredict", grpcStatus).Observe(time.Since(grpcStart).Seconds())
-		
+
 		if err != nil {
 			httpRequestsTotal.WithLabelValues("/predict/iris", "500").Inc()
 			slog.Error("iris service call failed", "error", err)
@@ -287,7 +287,7 @@ func main() {
 		if resp.EvalCount > 0 {
 			// 累加生成的 Token 数
 			aiTokensTotal.WithLabelValues(resp.ModelName).Add(float64(resp.EvalCount))
-			
+
 			// Ollama 的 eval_duration 单位通常是纳秒，转换为秒
 			durationSec := float64(resp.EvalDuration) / 1e9
 			aiGenerationDuration.WithLabelValues(resp.ModelName).Observe(durationSec)
@@ -336,21 +336,20 @@ func main() {
 	slog.Info("Server stopped.")
 } */
 
-
 package main
 
 import (
 	"context"
 	"log/slog"
 	"net/http"
+	_ "net/http/pprof"
 	"os"
 	"os/signal"
 	"syscall"
-	_ "net/http/pprof"
 
-	irisv1  "my-go-gateway/gen/iris/v1"
-	modelv1 "my-go-gateway/gen/model/v1"
 	"my-go-gateway/config"
+	irisv1 "my-go-gateway/gen/iris/v1"
+	modelv1 "my-go-gateway/gen/model/v1"
 	"my-go-gateway/grpcclient"
 	"my-go-gateway/handlers"
 	"my-go-gateway/metrics"
@@ -390,8 +389,8 @@ func main() {
 
 	// Handlers
 	healthHandler := handlers.NewHealthHandler()
-	irisHandler   := handlers.NewIrisHandler(irisv1.NewIrisPredictorClient(conn), cfg)
-	modelHandler  := handlers.NewModelHandler(modelv1.NewModelPredictorClient(conn), cfg)
+	irisHandler := handlers.NewIrisHandler(irisv1.NewIrisPredictorClient(conn), cfg)
+	modelHandler := handlers.NewModelHandler(modelv1.NewModelPredictorClient(conn), cfg)
 
 	// Router
 	r := router.Setup(healthHandler, irisHandler, modelHandler)
@@ -419,9 +418,7 @@ func main() {
 	slog.Info("Server stopped.")
 }
 
-
-```
-
+/* ```
 The final package layout:
 
 service_go/
@@ -440,4 +437,4 @@ service_go/
 │   └── model.go           # owns token metrics logic
 └── router/
     └── router.go          # pure route wiring, no business logic
-```
+``` */

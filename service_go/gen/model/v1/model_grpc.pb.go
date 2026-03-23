@@ -19,7 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ModelPredictor_ModelPredict_FullMethodName = "/model.v1.ModelPredictor/ModelPredict"
+	ModelPredictor_ModelPredict_FullMethodName       = "/model.v1.ModelPredictor/ModelPredict"
+	ModelPredictor_ModelPredictStream_FullMethodName = "/model.v1.ModelPredictor/ModelPredictStream"
 )
 
 // ModelPredictorClient is the client API for ModelPredictor service.
@@ -27,6 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ModelPredictorClient interface {
 	ModelPredict(ctx context.Context, in *ModelPredictRequest, opts ...grpc.CallOption) (*ModelPredictResponse, error)
+	ModelPredictStream(ctx context.Context, in *ModelPredictRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ModelPredictResponse], error)
 }
 
 type modelPredictorClient struct {
@@ -47,11 +49,31 @@ func (c *modelPredictorClient) ModelPredict(ctx context.Context, in *ModelPredic
 	return out, nil
 }
 
+func (c *modelPredictorClient) ModelPredictStream(ctx context.Context, in *ModelPredictRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ModelPredictResponse], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &ModelPredictor_ServiceDesc.Streams[0], ModelPredictor_ModelPredictStream_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[ModelPredictRequest, ModelPredictResponse]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type ModelPredictor_ModelPredictStreamClient = grpc.ServerStreamingClient[ModelPredictResponse]
+
 // ModelPredictorServer is the server API for ModelPredictor service.
 // All implementations must embed UnimplementedModelPredictorServer
 // for forward compatibility.
 type ModelPredictorServer interface {
 	ModelPredict(context.Context, *ModelPredictRequest) (*ModelPredictResponse, error)
+	ModelPredictStream(*ModelPredictRequest, grpc.ServerStreamingServer[ModelPredictResponse]) error
 	mustEmbedUnimplementedModelPredictorServer()
 }
 
@@ -64,6 +86,9 @@ type UnimplementedModelPredictorServer struct{}
 
 func (UnimplementedModelPredictorServer) ModelPredict(context.Context, *ModelPredictRequest) (*ModelPredictResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ModelPredict not implemented")
+}
+func (UnimplementedModelPredictorServer) ModelPredictStream(*ModelPredictRequest, grpc.ServerStreamingServer[ModelPredictResponse]) error {
+	return status.Error(codes.Unimplemented, "method ModelPredictStream not implemented")
 }
 func (UnimplementedModelPredictorServer) mustEmbedUnimplementedModelPredictorServer() {}
 func (UnimplementedModelPredictorServer) testEmbeddedByValue()                        {}
@@ -104,6 +129,17 @@ func _ModelPredictor_ModelPredict_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ModelPredictor_ModelPredictStream_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(ModelPredictRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(ModelPredictorServer).ModelPredictStream(m, &grpc.GenericServerStream[ModelPredictRequest, ModelPredictResponse]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type ModelPredictor_ModelPredictStreamServer = grpc.ServerStreamingServer[ModelPredictResponse]
+
 // ModelPredictor_ServiceDesc is the grpc.ServiceDesc for ModelPredictor service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -116,6 +152,12 @@ var ModelPredictor_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ModelPredictor_ModelPredict_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "ModelPredictStream",
+			Handler:       _ModelPredictor_ModelPredictStream_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "model/v1/model.proto",
 }

@@ -9,4 +9,4 @@ scrape_configs:
   # add this
   - job_name: "gpu"
     static_configs:
-      - targets: ["172.19.0.1:9835"]
+      - targets: ["172.17.141.222:9835"]

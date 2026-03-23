@@ -12,11 +12,12 @@ COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen
 
 # 复制生成的代码和主程序
-COPY gen/ ./gen/
-COPY main.py ./
+COPY gen/ ./gen/ 
+COPY models/ ./models/
+COPY main.py observability.py server.py gpu_exporter.py./
 
 # 设置 PYTHONPATH 确保能找到 gen 目录
-ENV PYTHONPATH="/app/gen"
+ENV PYTHONPATH="/app:/app/gen"
 
 # 暴露 gRPC 端口
 EXPOSE 50051

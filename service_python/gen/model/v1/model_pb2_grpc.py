@@ -21,6 +21,12 @@ class ModelPredictorStub(object):
             response_deserializer=model_dot_v1_dot_model__pb2.ModelPredictResponse.FromString,
             _registered_method=True,
         )
+        self.ModelPredictStream = channel.unary_stream(
+            "/model.v1.ModelPredictor/ModelPredictStream",
+            request_serializer=model_dot_v1_dot_model__pb2.ModelPredictRequest.SerializeToString,
+            response_deserializer=model_dot_v1_dot_model__pb2.ModelPredictResponse.FromString,
+            _registered_method=True,
+        )
 
 
 class ModelPredictorServicer(object):
@@ -32,11 +38,22 @@ class ModelPredictorServicer(object):
         context.set_details("Method not implemented!")
         raise NotImplementedError("Method not implemented!")
 
+    def ModelPredictStream(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details("Method not implemented!")
+        raise NotImplementedError("Method not implemented!")
+
 
 def add_ModelPredictorServicer_to_server(servicer, server):
     rpc_method_handlers = {
         "ModelPredict": grpc.unary_unary_rpc_method_handler(
             servicer.ModelPredict,
+            request_deserializer=model_dot_v1_dot_model__pb2.ModelPredictRequest.FromString,
+            response_serializer=model_dot_v1_dot_model__pb2.ModelPredictResponse.SerializeToString,
+        ),
+        "ModelPredictStream": grpc.unary_stream_rpc_method_handler(
+            servicer.ModelPredictStream,
             request_deserializer=model_dot_v1_dot_model__pb2.ModelPredictRequest.FromString,
             response_serializer=model_dot_v1_dot_model__pb2.ModelPredictResponse.SerializeToString,
         ),
@@ -71,6 +88,36 @@ class ModelPredictor(object):
             request,
             target,
             "/model.v1.ModelPredictor/ModelPredict",
+            model_dot_v1_dot_model__pb2.ModelPredictRequest.SerializeToString,
+            model_dot_v1_dot_model__pb2.ModelPredictResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True,
+        )
+
+    @staticmethod
+    def ModelPredictStream(
+        request,
+        target,
+        options=(),
+        channel_credentials=None,
+        call_credentials=None,
+        insecure=False,
+        compression=None,
+        wait_for_ready=None,
+        timeout=None,
+        metadata=None,
+    ):
+        return grpc.experimental.unary_stream(
+            request,
+            target,
+            "/model.v1.ModelPredictor/ModelPredictStream",
             model_dot_v1_dot_model__pb2.ModelPredictRequest.SerializeToString,
             model_dot_v1_dot_model__pb2.ModelPredictResponse.FromString,
             options,

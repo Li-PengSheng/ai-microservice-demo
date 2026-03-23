@@ -78,25 +78,25 @@ patch_ollama_svc() {
     return
   fi
   info "WSL eth0 IP: $WSL_IP"
-  # Patch the ip field in Endpoints
   sed -i "s|- ip:.*|- ip: $WSL_IP|" "$SCRIPT_DIR/ollama-svc.yaml"
   success "ollama-svc.yaml patched → $WSL_IP"
 }
 
 patch_prometheus_target() {
-  step "Patching prometheus.yml scrape target"
+  step "Patching prometheus.yml gateway scrape target"
 
   TARGET="host.docker.internal:8080"
 
   if [[ -f "$SCRIPT_DIR/prometheus.yml" ]]; then
     sed -i "s|- \".*:8080\"|- \"$TARGET\"|" "$SCRIPT_DIR/prometheus.yml"
-    success "prometheus.yml target patched → $TARGET"
+    success "prometheus.yml gateway target patched → $TARGET"
   else
     warn "prometheus.yml not found — creating default config"
     cat > "$SCRIPT_DIR/prometheus.yml" <<EOF
 global:
   scrape_interval: 5s
   evaluation_interval: 5s
+
 scrape_configs:
   - job_name: "go-ai-gateway"
     static_configs:
@@ -146,11 +146,9 @@ patch_jaeger_endpoint() {
   fi
   info "WSL eth0 IP: $WSL_IP"
 
-  # Patch go-gateway.yaml
   sed -i "s|value: \".*:4317\"|value: \"$WSL_IP:4317\"|" "$SCRIPT_DIR/go-gateway.yaml"
   success "go-gateway.yaml Jaeger endpoint patched → $WSL_IP:4317"
 
-  # Patch python-ai.yaml
   sed -i "s|value: \".*:4317\"|value: \"$WSL_IP:4317\"|" "$SCRIPT_DIR/python-ai.yaml"
   success "python-ai.yaml Jaeger endpoint patched → $WSL_IP:4317"
 }
@@ -178,7 +176,6 @@ build_images() {
 load_images() {
   step "Loading Docker images into the cluster"
 
-  # Use the active kubectl context as the source of truth
   CURRENT_CTX=$(kubectl config current-context 2>/dev/null || echo "")
   info "Active kubectl context: ${CURRENT_CTX:-<none>}"
 
@@ -191,13 +188,14 @@ load_images() {
     done
 
   elif [[ "$CURRENT_CTX" == *"kind"* ]]; then
-    # Extract cluster name from context (format: kind-<clustername>)
     KIND_CLUSTER="${CURRENT_CTX#kind-}"
     info "kind context — loading via 'kind load docker-image' (cluster: $KIND_CLUSTER)"
-    for img in "$GO_IMAGE" "$PYTHON_IMAGE"; do
-      info "Loading $img ..."
-      kind load docker-image "$img" --name "$KIND_CLUSTER"
-      success "$img loaded into kind"
+    for node in $(kind get nodes --name "$KIND_CLUSTER"); do
+      info "Loading images into node: $node"
+      for img in "$GO_IMAGE" "$PYTHON_IMAGE"; do
+        kind load docker-image "$img" --name "$KIND_CLUSTER" --nodes "$node"
+        success "$img loaded into $node"
+      done
     done
 
   elif [[ "$CURRENT_CTX" == *"k3s"* ]] || [[ "$CURRENT_CTX" == *"default"* && "$(command -v k3s)" ]]; then
@@ -233,12 +231,10 @@ apply_manifests() {
     if [[ -f "$path" ]]; then
       info "Applying $f ..."
       if [[ "$f" == "go-gateway-monitor.yaml" ]]; then
-        # ServiceMonitor needs prometheus-operator CRD — soft fail
         kubectl apply -f "$path" 2>/dev/null \
           && success "$f applied" \
           || warn "$f skipped — prometheus-operator (ServiceMonitor CRD) not installed"
       elif [[ "$f" == "go-gateway-hpa.yaml" ]]; then
-        # HPA needs metrics-server — soft fail
         kubectl apply -f "$path" 2>/dev/null \
           && success "$f applied" \
           || warn "$f skipped — metrics-server may not be installed"
@@ -288,19 +284,24 @@ start_monitoring() {
 }
 
 start_gpu_exporter() {
-  cd "$PYTHON_SERVICE_DIR"
-  info "Launching gpu_exporter.py in background..."
-  nohup uv run gpu_exporter.py > /tmp/gpu_exporter.log 2>&1 &
-  GPU_PID=$!
-  # wait for uv to spawn the real python process
-  sleep 1
-  PYTHON_PID=$(pgrep -f "gpu_exporter.py" | head -1)
-  echo "${PYTHON_PID:-$GPU_PID}" > /tmp/gpu_exporter.pid
+  step "Starting GPU exporter on Windows (native, outside Docker)"
 
-  success "GPU exporter started (PID: ${PYTHON_PID:-$GPU_PID})"
+  if [[ ! -f "$PYTHON_SERVICE_DIR/gpu_exporter.py" ]]; then
+    warn "gpu_exporter.py not found at $PYTHON_SERVICE_DIR — skipping"
+    return
+  fi
+
+  UV_PATH="$(wslpath -w "$PYTHON_SERVICE_DIR")"
+  info "Launching gpu_exporter.py via PowerShell in a new window..."
+
+  powershell.exe -Command "
+    Start-Process powershell -ArgumentList '-NoExit', '-Command',
+    'cd \"$UV_PATH\"; uv run gpu_exporter.py'
+  "
+
+  success "GPU exporter window launched on Windows"
   info "  Metrics → http://localhost:9835/metrics"
-  info "  Logs    → tail -f /tmp/gpu_exporter.log"
-  warn "  Stop    → ./deploy.sh gpu-stop"
+  warn "Close the PowerShell window to stop the GPU exporter"
 }
 
 port_forward_gateway() {
@@ -423,31 +424,11 @@ case "$CMD" in
   reset)
     reset_all
     ;;
-  gpu-stop)
-    if [[ -f /tmp/gpu_exporter.pid ]]; then
-      PID=$(cat /tmp/gpu_exporter.pid)
-      if kill -0 "$PID" 2>/dev/null; then
-        kill "$PID"
-        rm /tmp/gpu_exporter.pid
-        success "GPU exporter stopped (PID: $PID)"
-      else
-        warn "Process $PID is not running (already dead or never started)"
-        rm /tmp/gpu_exporter.pid
-      fi
-    else
-      # fallback: try pkill by script name
-      if pgrep -f "gpu_exporter.py" &>/dev/null; then
-        pkill -f "gpu_exporter.py"
-        success "GPU exporter stopped (via pkill)"
-      else
-        warn "No GPU exporter process found"
-      fi
-    fi
-    ;;
   all|*)
     check_deps
     patch_ollama_svc
     patch_prometheus_target
+    patch_prometheus_gpu
     patch_jaeger_endpoint
     build_images
     load_images
@@ -456,5 +437,13 @@ case "$CMD" in
     wait_for_pods
     start_monitoring
     show_status
+    ;;
+  gpu-stop)
+    if [[ -f /tmp/gpu_exporter.pid ]]; then
+      kill "$(cat /tmp/gpu_exporter.pid)" && rm /tmp/gpu_exporter.pid
+      success "GPU exporter stopped"
+    else
+      warn "No PID file found — GPU exporter may not be running"
+    fi
     ;;
 esac

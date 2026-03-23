@@ -63,18 +63,6 @@ services:
     networks:
       - ai-network
 
-  nvidia-gpu-exporter:
-    image: utkuozdemir/nvidia_gpu_exporter:1.1.0
-    runtime: nvidia
-    environment:
-      - NVIDIA_VISIBLE_DEVICES=all
-    ports:
-      - "9835:9835"
-    volumes:
-      - /usr/bin/nvidia-smi:/usr/bin/nvidia-smi  # mount host nvidia-smi
-    restart: unless-stopped
-    networks:
-      - ai-network
 networks:
   ai-network:
     driver: bridge

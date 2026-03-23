@@ -20,4 +20,5 @@ message ModelPredictResponse {
 
 service ModelPredictor {
   rpc ModelPredict(ModelPredictRequest) returns (ModelPredictResponse);
+  rpc ModelPredictStream(ModelPredictRequest) returns (stream ModelPredictResponse);
 }

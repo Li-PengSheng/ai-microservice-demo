@@ -18,6 +18,6 @@ func Setup(
 	r.GET("/health", health.Check)
 	r.POST("/predict/iris", iris.Predict)
 	r.POST("/predict/model", model.Predict)
-
+	r.POST("/predict/model/stream", model.PredictStream)
 	return r
 }

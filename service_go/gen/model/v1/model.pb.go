@@ -157,9 +157,10 @@ const file_model_v1_model_proto_rawDesc = "" +
 	"\x11prompt_eval_count\x18\x03 \x01(\x05R\x0fpromptEvalCount\x12\x1d\n" +
 	"\n" +
 	"eval_count\x18\x04 \x01(\x05R\tevalCount\x12#\n" +
-	"\reval_duration\x18\x05 \x01(\x03R\fevalDuration2_\n" +
+	"\reval_duration\x18\x05 \x01(\x03R\fevalDuration2\xb6\x01\n" +
 	"\x0eModelPredictor\x12M\n" +
-	"\fModelPredict\x12\x1d.model.v1.ModelPredictRequest\x1a\x1e.model.v1.ModelPredictResponseB\x97\x01\n" +
+	"\fModelPredict\x12\x1d.model.v1.ModelPredictRequest\x1a\x1e.model.v1.ModelPredictResponse\x12U\n" +
+	"\x12ModelPredictStream\x12\x1d.model.v1.ModelPredictRequest\x1a\x1e.model.v1.ModelPredictResponse0\x01B\x97\x01\n" +
 	"\fcom.model.v1B\n" +
 	"ModelProtoP\x01Z:ai-microservice-demo/service_go/gen/proto/model/v1;modelv1\xa2\x02\x03MXX\xaa\x02\bModel.V1\xca\x02\bModel\\V1\xe2\x02\x14Model\\V1\\GPBMetadata\xea\x02\tModel::V1b\x06proto3"
 
@@ -182,9 +183,11 @@ var file_model_v1_model_proto_goTypes = []any{
 }
 var file_model_v1_model_proto_depIdxs = []int32{
 	0, // 0: model.v1.ModelPredictor.ModelPredict:input_type -> model.v1.ModelPredictRequest
-	1, // 1: model.v1.ModelPredictor.ModelPredict:output_type -> model.v1.ModelPredictResponse
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
+	0, // 1: model.v1.ModelPredictor.ModelPredictStream:input_type -> model.v1.ModelPredictRequest
+	1, // 2: model.v1.ModelPredictor.ModelPredict:output_type -> model.v1.ModelPredictResponse
+	1, // 3: model.v1.ModelPredictor.ModelPredictStream:output_type -> model.v1.ModelPredictResponse
+	2, // [2:4] is the sub-list for method output_type
+	0, // [0:2] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
