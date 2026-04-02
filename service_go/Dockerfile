@@ -1,26 +1,26 @@
-# 第一阶段：编译
+# Build stage
 FROM golang:1.25-alpine AS builder
 
 WORKDIR /app
 
-# 复制依赖文件
+# Download dependencies
 COPY go.mod go.sum ./
 RUN go mod download
 
-# 复制源码（包含生成的 pb 代码）
+# Copy source code (including generated protobuf stubs)
 COPY . .
 
-# 编译成名为 'gateway' 的二进制文件
+# Compile to a single binary named 'gateway'
 RUN go build -o gateway main.go
 
-# 第二阶段：运行
+# Run stage
 FROM alpine:latest
 
 WORKDIR /root/
-# 从编译阶段复制二进制文件
+# Copy the binary from the build stage
 COPY --from=builder /app/gateway .
 
-# 暴露 Gin 的 HTTP 端口
+# Expose the Gin HTTP port
 EXPOSE 8080
 
 CMD ["./gateway"]

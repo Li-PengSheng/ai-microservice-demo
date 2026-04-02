@@ -1,4 +1,4 @@
-# AI Microservice Demo
+# AI Gateway Monitor
 
 A production-style AI inference platform built as a portfolio project, demonstrating modern microservice patterns: REST-to-gRPC gateway, unary + streaming LLM inference, distributed tracing, Prometheus metrics, and Kubernetes deployment.
 
@@ -215,24 +215,29 @@ Go gateway exposes runtime profiling at http://localhost:6060/debug/pprof — us
 │   ├── main.go
 │   ├── Dockerfile
 │   ├── go.mod
-│   ├── handlers/           # HTTP handlers (iris/model/stream)
-│   ├── router/             # Route wiring
-│   ├── config/             # Env config
+│   ├── config/             # Environment config with typed defaults
+│   ├── telemetry/          # OpenTelemetry tracer initialization
+│   ├── metrics/            # Prometheus metric definitions and registration
+│   ├── grpcclient/         # gRPC client dial (keepalive, OTel, msg size)
+│   ├── handlers/           # HTTP handlers: health, iris, model, stream
+│   ├── router/             # Route wiring (no business logic)
 │   └── gen/                # Generated gRPC stubs
 ├── service_python/         # Python AI service
 │   ├── main.py
 │   ├── Dockerfile
 │   ├── pyproject.toml
-│   ├── models/             # Iris + Ollama predictors
-│   ├── observability.py    # Logging + tracing setup
-│   ├── server.py           # gRPC server wiring
+│   ├── models/             # Iris (scikit-learn) + Ollama predictors
+│   ├── observability.py    # Logging and OpenTelemetry tracing setup
+│   ├── server.py           # gRPC server wiring and graceful shutdown
 │   └── gen/                # Generated gRPC stubs
 ├── test/
 │   └── test.js             # k6 load test
+├── grafana/
+│   └── ai-gateway-dashboard.json  # Pre-built Grafana dashboard
 ├── docker-compose.yml
 ├── prometheus.yml
 ├── buf.gen.yaml            # Protobuf code generation config
-└── deploy.sh               # K8s deployment helper
+└── deploy.sh               # Kubernetes deployment helper
 ```
 
 ## Regenerating Protobuf Code

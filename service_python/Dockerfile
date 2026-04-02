@@ -1,26 +1,26 @@
-# 使用轻量级 Python 镜像
+# Lightweight Python base image
 FROM python:3.12-slim
 
-# 安装 uv
+# Install uv package manager
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-# 设置工作目录
+# Set working directory
 WORKDIR /app
 
-# 复制依赖文件并安装
+# Copy dependency files and install
 COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen
 
-# 复制生成的代码和主程序
+# Copy generated protobuf stubs and application source
 COPY gen/ ./gen/ 
 COPY models/ ./models/
 COPY main.py observability.py server.py gpu_exporter.py ./
 
-# 设置 PYTHONPATH 确保能找到 gen 目录
+# Ensure the gen directory is on PYTHONPATH
 ENV PYTHONPATH="/app:/app/gen"
 
-# 暴露 gRPC 端口
+# Expose the gRPC port
 EXPOSE 50051
 
-# 启动服务
+# Start the gRPC server
 CMD ["uv", "run", "main.py"]
